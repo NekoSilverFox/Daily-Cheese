@@ -17,7 +17,11 @@
 
 [toc]
 
-
+> 资料来源：https://github.com/huihut/interview（对其进行了补充和优化）
+>
+> 本仓库遵循 CC BY-NC-SA 4.0（署名 - 非商业性使用 - 相同方式共享） 协议，转载请注明出处，不得用于商业目的。
+>
+> [![CC BY-NC-SA 4.0](https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png)](https://github.com/huihut/interview/blob/master/LICENSE)
 
 # 🧀基础🧀
 
@@ -35,6 +39,77 @@
 在特定的上下文中，上下文信息可以提供程序执行所需的一切信息，以便正确执行任务或操作。对于某些库或框架，上下文对象（如FFmpeg 中的`AVFormatContext`）就是用来存储和传递这些上下文信息的数据结构。
 
 ## 回调
+
+
+
+# C/C++
+
+## const
+
+**作用:**
+
+1. 修饰变量，说明该变量不可以被改变
+2. 修饰指针，分为
+    - 指向常量的指针（pointer to const）
+    - 自身是常量的指针（常量指针，const pointer）
+3. 修饰引用，指向常量的引用（reference to const），用于形参类型，即避免了拷贝，又避免了函数对值的修改。没有 const reference，因为**引用只是对象的别名，引用不是对象，不能用 const 修饰**
+4. 修饰成员函数，说明该成员函数内不能修改成员变量
+
+> （为了方便记忆可以想成）被 const 修饰**（在 const 后面）**的值不可改变，如下文使用例子中的 `p2`、`p3`
+
+const 使用
+
+```cpp
+// 类
+class A
+{
+private:
+    const int a;                // 常对象成员，可以使用初始化列表或者类内初始化
+
+public:
+    // 构造函数
+    A() : a(0) { };
+    A(int x) : a(x) { };        // 初始化列表
+
+    // const可用于对重载函数的区分
+    int getValue();             // 普通成员函数
+    int getValue() const;       // 常成员函数，不得修改类中的任何【成员】的值
+};
+
+// ==========================================================
+void function()
+{
+    // 对象
+    A b;                        // 普通对象，可以调用全部成员函数
+    const A a;                  // 常对象，只能调用常成员函数
+    const A *p = &a;            // 指针变量，指向常对象
+    const A &q = a;             // 指向常对象的引用
+
+    // 指针
+    char greeting[] = "Hello";
+    char* p1 = greeting;                // 指针变量，指向字符数组变量
+    const char* p2 = greeting;          // 指针变量，指向字符数组【常量】（const 后面是 char，说明指向的字符（char）不可改变）
+    char* const p3 = greeting;          // 自身是常量的指针，指向字符数组【变量】（const 后面是 p3，说明 p3 指针自身不可改变）
+    const char* const p4 = greeting;    // 自身是常量的指针，指向字符数组常量
+}
+
+// ==========================================================
+// 函数
+void function1(const int Var);           // 传递过来的参数在函数内不可变
+void function2(const char* Var);         // 参数指针所指内容为常量
+void function3(char* const Var);         // 参数指针为常量
+void function4(const int& Var);          // 引用参数在函数内为常量（推荐写法，避免开销）
+
+// ==========================================================
+// 函数返回值
+const int function5();      // 返回一个常数
+const int* function6();     // 返回一个指向常量的指针变量，使用：const int *p = function6();
+int* const function7();     // 返回一个指向变量的常指针，使用：int* const p = function7();
+```
+
+
+
+
 
 
 
@@ -73,7 +148,7 @@
 
 进程互斥（Mutex） - 两个或两个以上的进程，不能同时进入关于同一组共享变量的临界区域，否则可能发生与时间有关的错误，这种现象被称作进程互斥· 也就是说，一个进程正在访问[临界资源](https://baike.baidu.com/item/临界资源/1880269?fromModule=lemma_inlink)，另一个要访问该资源的进程必须等待。
 
-在[多道程序](https://baike.baidu.com/item/多道程序/8192392?fromModule=lemma_inlink)环境下，存在着临界资源，它是指[多进程](https://baike.baidu.com/item/多进程/9796976?fromModule=lemma_inlink)存在时必须互斥访问的资源。也就是某一时刻不允许多个进程同时访问，只能单个进程的访问。我们把这些程序的片段称作[临界区](https://baike.baidu.com/item/临界区/8942134?fromModule=lemma_inlink)或临界段，它存在的目的是有效的防止[竞争条件](https://baike.baidu.com/item/竞争条件/10354815?fromModule=lemma_inlink)又能保证最大化使用共享数据。而这些并发进程必须有好的解决方案，才能防止出现以下情况：多个进程同时处于临界区，临界区外的进程阻塞其他的进程，有些进程在临界区外无休止的等待。除此以外，这些方案还不能对CPU的速度和数目做出任何的假设。只有满足了这些条件，才是一个好的解决方案
+在[多道程序](https://baike.baidu.com/item/多道程序/8192392?fromModule=lemma_inlink)环境下，存在着临界资源，它是指[多进程](https://baike.baidu.com/item/多进程/9796976?fromModule=lemma_inlink)存在时必须互斥访问的资源。也就是**某一时刻不允许多个进程同时访问，只能单个进程的访问**。我们**把这些程序的片段称作[临界区](https://baike.baidu.com/item/临界区/8942134?fromModule=lemma_inlink)或临界段，它存在的目的是有效的防止[竞争条件](https://baike.baidu.com/item/竞争条件/10354815?fromModule=lemma_inlink)又能保证最大化使用共享数据。**而这些并发进程必须有好的解决方案，才能防止出现以下情况：多个进程同时处于临界区，临界区外的进程阻塞其他的进程，有些进程在临界区外无休止的等待。除此以外，这些方案还不能对CPU的速度和数目做出任何的假设。只有满足了这些条件，才是一个好的解决方案
 
 **实现进程互斥：**为实现进程互斥，可以利用软件的方法，也可以在系统中设置专门的同步机制来协调多个进程，但是所有的同步机制应该遵循四大准则：
 
@@ -88,6 +163,32 @@
 早期解决进程互斥问题有软件的方法和硬件的方法，如：严格轮换法，Peterson的解决方案，[TSL](https://baike.baidu.com/item/TSL/6695760?fromModule=lemma_inlink)指令，[Swap](https://baike.baidu.com/item/Swap/2666186?fromModule=lemma_inlink)指令都可以实现进程的互斥，不过它们都有一定的缺陷，这里就不一一详细说明，而后来[Dijkstra](https://baike.baidu.com/item/Dijkstra/1880870?fromModule=lemma_inlink)提出的[信号量机制](https://baike.baidu.com/item/信号量机制/0?fromModule=lemma_inlink)则更好的解决了互斥问题。
 
 解决进程互斥还有[管程](https://baike.baidu.com/item/管程/0?fromModule=lemma_inlink)，进程消息通信等方式。
+
+# 设计模式
+
+常有必要提醒我们自己设计模式存在的原因，以及为什么像 Qt 这样成功的框架会广泛使用不同的设计模式。首先，**设计模式只是软件开发任务的众多解决方案之一，它不是唯一的解决方案**；事实上，大多数时候它甚至不是最快的解决方案。然而，设计模式绝对是解决软件开发问题最有结构的方式，它有助于确保你对程序中添加的每件事都使用一些预定义的模板式结构。
+
+设计模式有不同种类的问题的名称，例如创建对象、它们的运行方式、它们如何处理数据等。Eric Gamma、Richard Helm、Ralph E. Johnson 和 John Vlissides（被称为 *四人帮*）在他们的书 *设计模式：可复用面向对象软件的基础* 中描述了许多最广泛使用的设计模式，这本书被认为是计算机科学中设计模式的事实上的参考书。如果你不熟悉设计模式，你绝对应该花一些时间了解这个主题。学习软件开发中的**反模式（Anti-Pattern）**也是一个好主意。如果你是这个话题的新手，你可能会惊讶地发现一些反模式有多常见，确保你始终避免它们是至关重要的。
+
+## 反模式（Anti-Pattern）
+“反模式”（Anti-Pattern）是一种常见的但低效或有问题的设计、编程或管理实践，这些实践表面上看似提供了一个解决方案，但实际上可能会引入更多的问题。反模式通常是因为缺乏经验或对现有问题理解不足而产生的，而且它们可能会在团队或项目中不知不觉地得到推广。
+
+反模式的关键特征包括：
+
+1. **反生产性**：它们可能会阻碍过程的效率，导致产出质量下降。
+2. **反直觉**：虽然表面上解决了问题，但实际上可能会掩盖根本问题，使得问题更加难以解决。
+3. **重复性**：它们往往会在不同的项目或团队中重复出现，因为人们可能不认识到它们的负面影响。
+4. **教训性**：识别和理解反模式可以作为学习工具，帮助人们避免在未来犯同样的错误。
+
+一些常见的反模式例子包括：
+
+- **金锤子（Golden Hammer）**：对某一技术或工具有过度的依赖，认为它可以解决所有问题。
+- **货物崇拜（Cargo Cult Programming）**：程序员盲目地复制某些代码或做法，而没有理解其背后的原理。
+- **剪贴板编程（Copy-Paste Programming）**：频繁地复制和粘贴代码，而不是理解代码的功能或考虑代码重用。
+- **神对象（God Object）**：创建一个过分庞大和复杂的对象，它几乎控制了程序中的所有过程。
+- **过早优化（Premature Optimization）**：在理解性能瓶颈之前过分关注优化。
+
+反模式的提出目的是为了帮助开发者识别和避免这些常见的错误做法，从而改进他们的软件设计和开发过程。了解反模式同样重要，因为它们提供了不良实践的有力例子，从而使开发者能够学习如何采取更好的策略。
 
 
 
